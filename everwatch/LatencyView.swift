@@ -1,13 +1,16 @@
+// SettingsView.swift
+
 import SwiftUI
 
+// MARK: - PingLatencyView (Improved UI)
+
 struct PingLatencyView: View {
-    @Binding var websites: [Website] // Pass websites as a binding
+    @Binding var websites: [Website]
 
     var body: some View {
-        NavigationView {
             List {
                 ForEach(websites) { website in
-                    Section(header: Text(website.name)) { // Group by website name
+                    Section(header: Text(website.name)) {
                         if let latestRecord = website.history.last, let pingTime = latestRecord.pingTime {
                             HStack {
                                 Text("Latest Ping:")
@@ -20,8 +23,8 @@ struct PingLatencyView: View {
                     }
                 }
             }
+            .listStyle(.plain) // Use plain list style here as well
             .navigationTitle("Ping & Latency")
         }
-    }
+    
 }
-

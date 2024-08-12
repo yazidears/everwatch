@@ -4,75 +4,100 @@ struct WebsiteStatsView: View {
     @Binding var websites: [Website]
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Text("Overall Website Statistics")
-                    .font(.headline)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 30) {
+
+                    // Highlight Key Metrics
+                    HStack(spacing: 20) {
+                        KeyMetricView(title: "Total", value: "\(websites.count)", systemImage: "list.bullet")
+                        KeyMetricView(title: "Online", value: "\(websites.filter { $0.status == "200" }.count)", systemImage: "globe")
+                        KeyMetricView(title: "Offline", value: "\(websites.filter { $0.status != "200" }.count)", systemImage: "xmark.octagon.fill")
+                            .foregroundColor(.red) // Highlight offline count in red
+                    }
+
+                    // Ping Statistics Section
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Ping Performance")
+                            .font(.title2)
+                            .bold()
+
+                        if let avgPing = calculateAveragePing(websites: websites) {
+                            StatisticRow(title: "Average Ping", value: "\(String(format: "%.2f", avgPing * 1000)) ms")
+                        } else {
+                            StatisticRow(title: "Average Ping", value: "N/A")
+                        }
+
+                        if let fastestPing = calculateFastestPing(websites: websites) {
+                            StatisticRow(title: "Fastest Ping", value: "\(String(format: "%.2f", fastestPing * 1000)) ms")
+                        } else {
+                            StatisticRow(title: "Fastest Ping", value: "N/A")
+                        }
+
+                        if let slowestPing = calculateSlowestPing(websites: websites) {
+                            StatisticRow(title: "Slowest Ping", value: "\(String(format: "%.2f", slowestPing * 1000)) ms")
+                        } else {
+                            StatisticRow(title: "Slowest Ping", value: "N/A")
+                        }
+                    }
                     .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
 
-                HStack {
-                    Text("Total Websites:")
-                    Spacer()
-                    Text("\(websites.count)")
-                }
-                .padding()
+                    // Status Codes Section
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Status Codes")
+                            .font(.title2)
+                            .bold()
 
-                HStack {
-                    Text("Currently Online:")
-                    Spacer()
-                    Text("\(websites.filter { $0.status == "200" }.count)")
-                }
-                .padding()
-
-                HStack {
-                    Text("Currently Offline:")
-                    Spacer()
-                    Text("\(websites.filter { $0.status != "200" }.count)")
-                }
-                .padding()
-
-                HStack {
-                    Text("Average Ping Time:")
-                    Spacer()
-                    if let avgPing = calculateAveragePing(websites: websites) {
-                        Text("\(String(format: "%.2f", avgPing * 1000)) ms")
-                    } else {
-                        Text("N/A")
+                        StatisticRow(title: "Most Common", value: "\(mostFrequentStatusCode(websites: websites) ?? "N/A")")
+                        // Potentially add more status code insights here (e.g., distribution chart)
                     }
-                }
-                .padding()
-
-                // New Statistics
-                HStack {
-                    Text("Fastest Ping:")
-                    Spacer()
-                    if let fastestPing = calculateFastestPing(websites: websites) {
-                        Text("\(String(format: "%.2f", fastestPing * 1000)) ms")
-                    } else {
-                        Text("N/A")
-                    }
-                }
-                .padding()
-
-                HStack {
-                    Text("Slowest Ping:")
-                    Spacer()
-                    if let slowestPing = calculateSlowestPing(websites: websites) {
-                        Text("\(String(format: "%.2f", slowestPing * 1000)) ms")
-                    } else {
-                        Text("N/A")
-                    }
-                }
-                .padding()
-
-                HStack {
-                    Text("Most Common Status Code:")
-                    Spacer()
-                    Text("\(mostFrequentStatusCode(websites: websites) ?? "N/A")")
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
                 }
                 .padding()
             }
-            .navigationTitle("Website Stats")
+            .navigationTitle("Website Insights")
+        }
+    
+
+    // Helper view for key metrics
+    struct KeyMetricView: View {
+        let title: String
+        let value: String
+        let systemImage: String
+
+        var body: some View {
+            VStack {
+                Image(systemName: systemImage)
+                    .font(.largeTitle)
+                Text(value)
+                    .font(.title)
+                    .bold()
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity) // Expand to fill available space
+        }
+    }
+
+    // Helper view for statistic rows
+    struct StatisticRow: View {
+        let title: String
+        let value: String
+
+        var body: some View {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                Spacer()
+                Text(value)
+                    .font(.subheadline)
+
+                    .foregroundColor(.secondary)
+            }
         }
     }
 

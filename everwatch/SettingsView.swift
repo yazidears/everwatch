@@ -1,29 +1,34 @@
-//
-//  SettingsView.swift
-//  everwatch
-//
-//  Created by Yazide Arsalan on 6/30/24.
-//
-
+// SettingsView.swift
 import SwiftUI
-
+import Swift
 struct SettingsView: View {
-    @AppStorage("checkInterval") var checkInterval: TimeInterval = 60 // Default to 1 minute
+    @AppStorage("checkInterval") var checkInterval: TimeInterval = 300
+    @AppStorage("enableBackgroundChecks") var enableBackgroundChecks: Bool = true
+    @AppStorage("notifyWhenWebsiteDown") var notifyWhenWebsiteDown: Bool = true
+    @AppStorage("notifyWhenWebsiteBackUp") var notifyWhenWebsiteBackUp: Bool = true
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Check Frequency")) {
-                    Picker("Check Every:", selection: $checkInterval) {
-                        Text("1 Minute").tag(60)
-                        Text("5 Minutes").tag(300)
-                        Text("10 Minutes").tag(600)
+            // Use a custom List style to remove the extra top padding
+            List {
+                Section(header: Text("Monitoring")) {
+                    HStack {
+                        Text("Check every")
+                        Spacer()
+                        Text("\(Int(checkInterval / 60)) minutes")
                     }
+                    Slider(value: $checkInterval, in: 30...3600, step: 30) {
+                        Text("Check Interval")
+                    }
+                    Toggle("Enable Background Checks", isOn: $enableBackgroundChecks)
                 }
 
-                // Add more settings here...
+                Section(header: Text("Notifications")) {
+                    Toggle("Notify when website goes down", isOn: $notifyWhenWebsiteDown)
+                    Toggle("Notify when website is back up", isOn: $notifyWhenWebsiteBackUp)
+                }
             }
+            .listStyle(.plain) // Use plain list style to minimize padding
             .navigationTitle("Settings")
-        }
+        
     }
 }
